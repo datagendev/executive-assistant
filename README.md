@@ -4,7 +4,7 @@ A personal executive assistant built as a Claude Code agent with modular skills.
 
 Built with [DataGen](https://datagen.dev) for tool orchestration via Composio integrations (Google Calendar, Gmail, LinkedIn).
 
-<video src="demo.mp4" autoplay loop muted playsinline></video>
+![Demo](demo.gif)
 
 ## What it does
 
