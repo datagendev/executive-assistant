@@ -1,11 +1,11 @@
 ---
 name: ea-save-link
-description: Save an article, blog post, or YouTube video transcript by fetching its content and storing it locally in raw/. Use when user says "save this article", "read later", "fetch this post", or pastes an article/YouTube URL to save.
+description: Save an article, blog post, YouTube transcript, or LinkedIn post by fetching its content and storing it locally in raw/. Use when user says "save this article", "read later", "fetch this post", or pastes an article/YouTube/LinkedIn URL to save.
 ---
 
-# Save Article
+# Save Link
 
-Fetch an article, blog post, documentation page, or YouTube transcript, extract the content as markdown, and save it to the `raw/` folder for later reading. YouTube links are automatically detected and routed to transcript extraction via Supadata API.
+Fetch an article, blog post, documentation page, YouTube transcript, or LinkedIn post, extract the content as markdown, and save it to the `raw/` folder for later reading. YouTube and LinkedIn links are automatically detected and routed to their respective fetchers.
 
 ## Workflow
 
@@ -23,6 +23,7 @@ source .venv/bin/activate && set -a && source .env && set +a && python scripts/s
 
 This script:
 - Detects YouTube links and routes to `scripts/save_youtube.py` (Supadata API)
+- Detects LinkedIn post links and routes to `scripts/save_linkedin_post.py` (DataGen LinkedIn tools)
 - For articles: fetches via Firecrawl (`mcp_Firecrawl_firecrawl_scrape`) using the DataGen SDK
 - Extracts main content as markdown
 - Generates a dated, slugified filename
@@ -41,6 +42,24 @@ YouTube links (`youtube.com/watch`, `youtu.be/`, `youtube.com/shorts/`) are auto
 - Fetches the transcript via Supadata API (key loaded from `.env` as `SUPADATA_API_KEY`)
 - Saves as markdown with `type: youtube-transcript` in frontmatter
 - Includes language detection
+
+## LinkedIn Post Support
+
+LinkedIn post links (`linkedin.com/feed/update/`, `linkedin.com/posts/`) are automatically detected and routed to `scripts/save_linkedin_post.py`, which:
+- Extracts the activity ID from the URL
+- Fetches post via `get_linkedin_person_post` (falls back to `get_linkedin_company_post`)
+- Saves as markdown with `type: linkedin-post` in frontmatter
+- Includes author info, engagement metrics, and reposted content if present
+
+### iOS Share Links
+
+iOS share links contain `-share-` instead of `-activity-` in the URL, so the activity ID cannot be extracted directly. When you detect an iOS share link (contains `-share-` or `utm_medium=ios_app`):
+
+1. First, run the DataGen custom tool `resolve_linkedin_activity_id` (UUID: `1686275b-8309-43b6-95fb-49d2c9dfedd0`) via `submitCustomToolRun` with `{"post_url": "<ios_url>"}` to get the canonical URL
+2. Then pass the returned `canonical_url` to the save script:
+   ```bash
+   source .venv/bin/activate && set -a && source .env && set +a && python scripts/save_linkedin_post.py "<canonical_url>"
+   ```
 
 ## Rules
 

@@ -1,5 +1,5 @@
 """Fetch an article via Firecrawl and save to raw/ as markdown.
-Routes YouTube links to save_youtube.py for transcript extraction."""
+Routes YouTube links to save_youtube.py and LinkedIn posts to save_linkedin_post.py."""
 import os
 import sys
 import json
@@ -14,8 +14,16 @@ YOUTUBE_PATTERNS = [
     r'(?:https?://)?(?:www\.)?youtube\.com/shorts/',
 ]
 
+LINKEDIN_POST_PATTERNS = [
+    r'(?:https?://)?(?:www\.)?linkedin\.com/feed/update/',
+    r'(?:https?://)?(?:www\.)?linkedin\.com/posts/',
+]
+
 def is_youtube_url(url):
     return any(re.search(p, url) for p in YOUTUBE_PATTERNS)
+
+def is_linkedin_post_url(url):
+    return any(re.search(p, url) for p in LINKEDIN_POST_PATTERNS)
 
 def slugify(text):
     text = text.lower().strip()
@@ -23,6 +31,14 @@ def slugify(text):
     text = re.sub(r'[\s_]+', '-', text)
     text = re.sub(r'-+', '-', text)
     return text[:80].strip('-')
+
+def _route_to_script(script_name, url):
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    result = subprocess.run(
+        [sys.executable, os.path.join(script_dir, script_name), url],
+        capture_output=False,
+    )
+    sys.exit(result.returncode)
 
 def main():
     if len(sys.argv) < 2:
@@ -33,12 +49,11 @@ def main():
 
     # Route YouTube links to the transcript fetcher
     if is_youtube_url(url):
-        script_dir = os.path.dirname(os.path.abspath(__file__))
-        result = subprocess.run(
-            [sys.executable, os.path.join(script_dir, "save_youtube.py"), url],
-            capture_output=False,
-        )
-        sys.exit(result.returncode)
+        _route_to_script("save_youtube.py", url)
+
+    # Route LinkedIn post links
+    if is_linkedin_post_url(url):
+        _route_to_script("save_linkedin_post.py", url)
 
     client = DatagenClient()
 

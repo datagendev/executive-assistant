@@ -33,7 +33,7 @@ Listen to what the user needs and use the right skill:
 | "Add to my todo", "I need to do X", "What's on my list?", "Mark X done" | ea-todo |
 | Dumps a list of tasks or voice transcript of things to do | ea-todo |
 | "Briefing", "Morning brief", "Prep my day", "What's on today?" | ea-briefing |
-| "Save this article", "Read later", pastes an article/blog URL | ea-save-link |
+| "Save this article", "Read later", pastes an article/blog/LinkedIn/YouTube URL | ea-save-link |
 
 ## Key Context
 
