@@ -36,19 +36,22 @@ Then **exit and restart Claude Code** for the plugin to take effect.
 
 Follow the prompts to authenticate with your [DataGen](https://datagen.dev) account.
 
-### 4. Connect Google Calendar and Gmail
+### 4. Connect required MCP servers
 
-Use the `/datagen:add-mcps` command to add the Composio integrations:
+Use `/datagen:add-mcps` or add them through the UI at [datagen.dev/signalgen/mcp-servers](https://datagen.dev/signalgen/mcp-servers).
+
+| MCP Server | Required by | What it provides |
+|---|---|---|
+| Composio Google Calendar | `executive-assistant`, `ea-book`, `ea-briefing` | Event listing, free slots, event creation, free/busy queries |
+| Composio Gmail | `ea-briefing` | Email fetching, triage, previous exchange lookup |
+| Firecrawl | `ea-save-link` | Article/webpage scraping and content extraction |
+| LinkedIn (built-in) | `ea-briefing` | Attendee background research via `search_linkedin_person` |
 
 ```
 /datagen:add-mcps
 ```
 
-Add these two MCP servers:
-- **Composio Google Calendar**
-- **Composio Gmail**
-
-Alternatively, you can add them through the UI at [datagen.dev/signalgen/mcp-servers](https://datagen.dev/signalgen/mcp-servers).
+Add at minimum **Composio Google Calendar** and **Composio Gmail**. Firecrawl and LinkedIn are available by default on DataGen.
 
 ### 5. Clone and enter this repo
 
@@ -85,8 +88,12 @@ This deploys the executive-assistant agent to DataGen and gives you back an emai
     ea-book/                  # Meeting booking
     ea-todo/                  # Local todo.md manager
     ea-briefing/              # Morning briefing with meeting prep
+    ea-save-link/             # Save articles to raw/ for later reading
   context/
     ea-preferences.md         # User preferences, blocklists, triage rules
+scripts/
+  save_link.py                # SDK script to fetch and save articles (token-efficient)
+raw/                          # Saved articles and content
 todo.md                       # Local task tracker (Now/Next/Later/Done)
 ```
 
