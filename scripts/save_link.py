@@ -32,20 +32,21 @@ def slugify(text):
     text = re.sub(r'-+', '-', text)
     return text[:80].strip('-')
 
-def _route_to_script(script_name, url):
+def _route_to_script(script_name, url, extra_args=None):
     script_dir = os.path.dirname(os.path.abspath(__file__))
-    result = subprocess.run(
-        [sys.executable, os.path.join(script_dir, script_name), url],
-        capture_output=False,
-    )
+    cmd = [sys.executable, os.path.join(script_dir, script_name), url]
+    if extra_args:
+        cmd.extend(extra_args)
+    result = subprocess.run(cmd, capture_output=False)
     sys.exit(result.returncode)
 
 def main():
     if len(sys.argv) < 2:
-        print("Usage: python save_link.py <url>")
+        print("Usage: python save_link.py <url> [original_url]")
         sys.exit(1)
 
     url = sys.argv[1]
+    original_url = sys.argv[2] if len(sys.argv) > 2 else url
 
     # Route YouTube links to the transcript fetcher
     if is_youtube_url(url):
@@ -53,7 +54,7 @@ def main():
 
     # Route LinkedIn post links
     if is_linkedin_post_url(url):
-        _route_to_script("save_linkedin_post.py", url)
+        _route_to_script("save_linkedin_post.py", url, [original_url])
 
     client = DatagenClient()
 
@@ -89,6 +90,7 @@ def main():
     content = f"""---
 title: "{title}"
 source: "{url}"
+original_link: "{original_url}"
 saved: {today}
 words: {word_count}
 tags: []

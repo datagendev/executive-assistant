@@ -38,6 +38,7 @@ def main():
         sys.exit(1)
 
     url = sys.argv[1]
+    original_url = sys.argv[2] if len(sys.argv) > 2 else url
     activity_id = extract_activity_id(url)
 
     if not activity_id:
@@ -116,6 +117,7 @@ def main():
     content = f"""---
 title: "LinkedIn post by {author_name}"
 source: "{share_url}"
+original_link: "{original_url}"
 saved: {today}
 type: linkedin-post
 author: "{author_name}"

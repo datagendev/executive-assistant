@@ -68,6 +68,7 @@ def main():
     content = f"""---
 title: "{title}"
 source: "{url}"
+original_link: "{url}"
 saved: {today}
 type: youtube-transcript
 language: {transcript_lang}

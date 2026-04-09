@@ -61,6 +61,22 @@ iOS share links contain `-share-` instead of `-activity-` in the URL, so the act
    source .venv/bin/activate && set -a && source .env && set +a && python scripts/save_linkedin_post.py "<canonical_url>"
    ```
 
+## Original Link Preservation
+
+Always save the original link the user pasted alongside any resolved/canonical URL. Each script accepts an optional second argument for the original URL:
+
+```bash
+python scripts/save_link.py "<resolved_url>" "<original_url>"
+python scripts/save_youtube.py "<url>" "<lang>"
+python scripts/save_linkedin_post.py "<canonical_url>" "<original_url>"
+```
+
+Example test links for each type:
+- **Article**: `https://example.com/blog/some-article`
+- **YouTube**: `https://www.youtube.com/watch?v=knx2wrILP1M`
+- **LinkedIn (canonical)**: `https://www.linkedin.com/posts/jacob-dietle_8296-articles-tweets-newsletters-and-activity-7448034500640575488-rI7q`
+- **LinkedIn (iOS share)**: `https://www.linkedin.com/posts/jacob-dietle_8296-articles-tweets-newsletters-and-share-7448034499063484416-DIaZ?utm_source=social_share_send&utm_medium=ios_app`
+
 ## Rules
 
 - Always use the script, not the MCP tool directly (saves tokens)
