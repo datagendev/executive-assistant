@@ -1,11 +1,11 @@
 ---
 name: ea-save-link
-description: Save an article or blog post by fetching its content and storing it locally in raw/. Use when user says "save this article", "read later", "fetch this post", or pastes an article URL to save.
+description: Save an article, blog post, or YouTube video transcript by fetching its content and storing it locally in raw/. Use when user says "save this article", "read later", "fetch this post", or pastes an article/YouTube URL to save.
 ---
 
 # Save Article
 
-Fetch an article, blog post, or documentation page, extract the content as markdown, and save it to the `raw/` folder for later reading. Designed for online articles, not social media posts.
+Fetch an article, blog post, documentation page, or YouTube transcript, extract the content as markdown, and save it to the `raw/` folder for later reading. YouTube links are automatically detected and routed to transcript extraction via Supadata API.
 
 ## Workflow
 
@@ -18,16 +18,15 @@ Extract the URL from the user's message. If multiple URLs, process each one.
 Use the SDK script to fetch and save in one step (avoids dumping large content into context):
 
 ```bash
-python scripts/save_link.py "<url>"
+source .venv/bin/activate && set -a && source .env && set +a && python scripts/save_link.py "<url>"
 ```
 
 This script:
-- Fetches via Firecrawl (`mcp_Firecrawl_firecrawl_scrape`) using the DataGen SDK
+- Detects YouTube links and routes to `scripts/save_youtube.py` (Supadata API)
+- For articles: fetches via Firecrawl (`mcp_Firecrawl_firecrawl_scrape`) using the DataGen SDK
 - Extracts main content as markdown
 - Generates a dated, slugified filename
 - Saves to `raw/` with frontmatter (title, source, date, word count, tags)
-
-Activate the venv first if needed: `source .venv/bin/activate`
 
 ### Step 3: Confirm
 
@@ -35,6 +34,13 @@ The script prints the saved filename and word count. Tell the user:
 - File saved to `raw/<filename>.md`
 - Title and word count
 - Suggest: "Want me to add a reading task to your todo?"
+
+## YouTube Support
+
+YouTube links (`youtube.com/watch`, `youtu.be/`, `youtube.com/shorts/`) are automatically detected and routed to `scripts/save_youtube.py`, which:
+- Fetches the transcript via Supadata API (key loaded from `.env` as `SUPADATA_API_KEY`)
+- Saves as markdown with `type: youtube-transcript` in frontmatter
+- Includes language detection
 
 ## Rules
 

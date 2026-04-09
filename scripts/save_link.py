@@ -1,10 +1,21 @@
-"""Fetch an article via Firecrawl and save to raw/ as markdown."""
+"""Fetch an article via Firecrawl and save to raw/ as markdown.
+Routes YouTube links to save_youtube.py for transcript extraction."""
 import os
 import sys
 import json
 import re
+import subprocess
 from datetime import datetime
 from datagen_sdk import DatagenClient
+
+YOUTUBE_PATTERNS = [
+    r'(?:https?://)?(?:www\.)?youtube\.com/watch',
+    r'(?:https?://)?youtu\.be/',
+    r'(?:https?://)?(?:www\.)?youtube\.com/shorts/',
+]
+
+def is_youtube_url(url):
+    return any(re.search(p, url) for p in YOUTUBE_PATTERNS)
 
 def slugify(text):
     text = text.lower().strip()
@@ -19,6 +30,16 @@ def main():
         sys.exit(1)
 
     url = sys.argv[1]
+
+    # Route YouTube links to the transcript fetcher
+    if is_youtube_url(url):
+        script_dir = os.path.dirname(os.path.abspath(__file__))
+        result = subprocess.run(
+            [sys.executable, os.path.join(script_dir, "save_youtube.py"), url],
+            capture_output=False,
+        )
+        sys.exit(result.returncode)
+
     client = DatagenClient()
 
     print(f"Fetching: {url}")
