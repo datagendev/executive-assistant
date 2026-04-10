@@ -15,15 +15,15 @@ This skill runs step-by-step using tasks. Each step saves raw data to `tmp/<pros
 
 Extract the prospect's name and email from the user's message. If you don't have their LinkedIn URL, ask the user. If the user doesn't know, try to find it via:
 1. Check HeyReach conversations for their profile URL
-2. Use `search_linkedin_person` with their name + company
+2. Use `search_linkedin_person` with `first_name`, `last_name`, `company_name` (separate fields, not a single `name`)
 3. Use WebSearch as a last resort
 
 ### Step 1: Gmail history
 
-Use `mcp_Gmail_Yusheng_gmail_search_emails` via DataGen `executeTool`:
+Use `composio_GMAIL_FETCH_EMAILS` via DataGen `executeTool`:
 ```
-tool: mcp_Gmail_Yusheng_gmail_search_emails
-params: { "query": "from:<email> OR to:<email>", "maxResults": 20 }
+tool: composio_GMAIL_FETCH_EMAILS
+params: { "user_id": "me", "query": "from:<email> OR to:<email>", "max_results": 20 }
 ```
 Save results to `tmp/<slug>/01-gmail.json`.
 
@@ -101,7 +101,7 @@ Print the brief to the user. Offer to:
 
 | Function | Tool Name | Server |
 |---|---|---|
-| Search emails | `mcp_Gmail_Yusheng_gmail_search_emails` | Gmail_Yusheng |
+| Fetch emails | `composio_GMAIL_FETCH_EMAILS` | Gmail (Composio) |
 | Search transcripts | `mcp_Fireflies_fireflies_get_transcripts` | Fireflies |
 | Get transcript | `mcp_Fireflies_fireflies_get_transcript` | Fireflies |
 | Get summary | `mcp_Fireflies_fireflies_get_summary` | Fireflies |
@@ -110,6 +110,12 @@ Print the brief to the user. Offer to:
 | LinkedIn profile | `get_linkedin_person_data` | (default) |
 | LinkedIn posts | `get_linkedin_person_posts` | (default) |
 | Search person | `search_linkedin_person` | (default) |
+
+### search_linkedin_person params
+```
+{ "first_name": "...", "last_name": "...", "company_name": "..." }
+```
+Do NOT use `name` or `company` -- those will error. All fields are optional but at least one should be provided.
 
 ## Rules
 
