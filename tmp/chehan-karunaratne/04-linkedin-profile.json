@@ -1,0 +1,52 @@
+{
+  "profile": {
+    "name": "Chehan Karunaratne",
+    "headline": "GTM Engineer | ABM | AI & Business Automation",
+    "location": "Sri Lanka",
+    "current_role": {
+      "title": "GTM Engineer - ABM & AI",
+      "company": "xGrowth",
+      "company_location": "Melbourne, VIC",
+      "start_date": "January 2026",
+      "description": "Build and iterate Clay workflows: filters, multi-source enrichment, de-duplication, QA, and exports. Building account-intel automations, and prototypes AI tools that speed internal work and evolve into client offerings. Orchestrate light automations across our data sources and spreadsheets; maintain clean schemas and change logs. Collaborate with strategists/SDRs to refine ICPs, buying-group definitions and list acceptance criteria."
+    },
+    "education": {
+      "degree": "Bachelor of Science - BS, Computer Science and Statistics",
+      "school": "University of Peradeniya",
+      "period": "2023 - 2026"
+    },
+    "certifications": [
+      "AI Skills Certification - Clay",
+      "Outbound Automation Certification - Clay"
+    ],
+    "top_skills": [
+      "Anthropic Claude",
+      "Clay",
+      "AI-Driven Content",
+      "Account Marketing",
+      "B2B Marketing Strategy",
+      "Go-to-Market Strategy",
+      "Automation",
+      "Python",
+      "Data Scraping",
+      "CRM"
+    ],
+    "connections": 1098,
+    "followers": 1104,
+    "summary": "I have a lot of 'let me help you' energy, probably why I'm knee-deep in tech and customer service."
+  },
+  "previous_roles": [
+    {
+      "title": "Head of Sales and Operations",
+      "company": "Studyingermany.lk",
+      "period": "December 2024 - Present",
+      "description": "Leads sales and operations, manages CRM setup, data security, partnerships"
+    },
+    {
+      "title": "Business Development Specialist",
+      "company": "Fit4Travel",
+      "period": "September 2024 - February 2026",
+      "description": "Managed end-to-end lead generation, HubSpot CRM, cold email campaigns"
+    }
+  ]
+}

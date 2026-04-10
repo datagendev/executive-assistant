@@ -1,0 +1,55 @@
+{
+  "meetings": [
+    {
+      "id": "01KNQHVPBTSEFRFPNZMMEMTB28",
+      "title": "30 Min Meeting between Yusheng Kuo and Chehan Karunaratne",
+      "date": "2026-04-09T15:00:00.000Z",
+      "duration": "59.5 min",
+      "summary": "The team discussed the integration of a research agent and a snippet agent to streamline workflow and improve reliability. By consolidating these agents, tasks can be chained seamlessly, thus reducing fragility associated with separate agents. They emphasized the use of Cloud Code for managing the combined agent and addressed challenges in scaling such agents for parallel processing. A dedicated validation agent was proposed to ensure signal accuracy, while hands-on learning was encouraged for skill development.",
+      "keywords": ["AI research agent", "skill development", "cloud deployment", "signal validation", "snippet generation", "scalability"],
+      "action_items": {
+        "Chehan": [
+          "Finalize the combination of research and snippet agents into a single repository with a proper skill structure for review",
+          "Convert existing commands into formal skills using folder and skill.md structure",
+          "Share GitHub repository with Yusheng for deployment assistance on Data Gen platform",
+          "Iterate on AI signals agent and skill to refine signal detection quality based on feedback",
+          "Explore deploying validation and snippet generation agents on cloud platforms for scalability"
+        ],
+        "Yusheng": [
+          "Assist Chehan with merging snippet and research skills and setting up combined agent",
+          "Guide Chehan on structuring skills properly and transitioning from commands to skills",
+          "Support Chehan in deploying their repository onto Data Gen and provide a live demo walkthrough for hands-on learning",
+          "Advise on scaling architecture, recommending Data Gen or cloud-managed agents for large batch processing",
+          "Provide ongoing feedback on refining AI skills for personalized content and signal detection tasks"
+        ]
+      }
+    },
+    {
+      "id": "01KMC7439R5HC6CSYKDZDZDFZ2",
+      "title": "30 Min Meeting between Yusheng Kuo and Chehan Karunaratne",
+      "date": "2026-03-23T22:30:00.000Z",
+      "duration": "91.75 min",
+      "summary": "The meeting centered on the setup and integration of various Cloud Code tools aimed at automating research workflows. Key tasks included the installation of Data Gen CLI and MCP agents for efficient automation and secure deployments, along with GitHub CLI for streamlined repository management. The team explored solutions for managing large markdown outputs, specifically addressing Clay's size limits by proposing the use of scalable cloud storage like S3. Additionally, webhook integration with Clay for effective data flow and the impact of model selection on research execution speed were significant discussion points.",
+      "keywords": ["Cloud Code", "Data Gen CLI", "GitHub CLI", "Clay integration", "Markdown storage", "Agent deployment"],
+      "action_items": {
+        "Chehan": [
+          "Complete Team or Company GitHub account setup for repository management",
+          "Save OAuth token for Cloud Code deployment and input it into Cloud Code UI",
+          "Insert API keys for XR and Parallel services into Data Gen UI for full integration",
+          "Adjust payload JSON variable inputs in prompt to match Clay data keys",
+          "Set up Clay tables with test client data rows and webhook URLs to trigger cloud agents",
+          "Decide on markdown output storage solution—either saving locally, uploading to S3/R2, or pushing results to Google Sheets via webhook"
+        ]
+      }
+    },
+    {
+      "id": "01KM57DGMAPWK80FSPPA4KVPK2",
+      "title": "30 Min Meeting between Yusheng Kuo and Chehan",
+      "date": "2026-03-20T22:30:00.000Z",
+      "duration": "13.3 min",
+      "summary": null,
+      "note": "Short meeting, no summary available"
+    }
+  ],
+  "summary": "3 meetings found - Most recent on April 9, 2026 discussing agent integration and skill development. Earlier meetings focused on Cloud Code setup, Clay integration, and GitHub workflow."
+}
