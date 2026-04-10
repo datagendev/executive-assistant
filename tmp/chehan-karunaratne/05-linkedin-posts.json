@@ -1,0 +1,32 @@
+{
+  "posts": [
+    {
+      "date": "2026-03-13",
+      "engagement": "58 reactions, 11 comments",
+      "topic": "Clay Cohort - GTM Alpha",
+      "key_quote": "GTM Alpha isn't some fancy strategy. It's just your edge. The thing that makes your outreach hit different from everyone else's.",
+      "insights": "Focus on relevance over volume in ABM. Less spray, more signal. Using AI to reach the right person at the right moment with relevant messaging."
+    },
+    {
+      "date": "2026-01-21",
+      "engagement": "36 reactions, 3 comments",
+      "topic": "Clay Outbound Automation Certification",
+      "key_quote": "This is another step forward in pushing the limits of modern GTM automation. Looking forward to continuing to build smarter, more scalable outbound systems.",
+      "insights": "Actively upskilling in GTM automation and outbound systems"
+    },
+    {
+      "date": "2025-01-04",
+      "engagement": "51 reactions, 34 comments",
+      "topic": "New Role Announcement",
+      "key_quote": "I'm happy to share that I'm starting a new position as Head of Sales and Operations at Studyingermany.lk",
+      "insights": "Career transition to leadership role before moving to xGrowth"
+    }
+  ],
+  "content_themes": [
+    "ABM and GTM strategy",
+    "AI-powered automation",
+    "Clay workflows and tools",
+    "Relevance-driven outreach",
+    "Scalable outbound systems"
+  ]
+}
