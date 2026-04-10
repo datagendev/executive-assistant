@@ -7,6 +7,7 @@
 
 ## Next
 <!-- Important but not urgent, do this week -->
+- [ ] Read "Every Is Half Agent Now" article (raw/2026-04-10/2026-04-10-every-is-half-agent-now.md)
 
 ## Later
 <!-- Backlog, nice to have -->
