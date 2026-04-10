@@ -10,6 +10,7 @@
 
 ## Later
 <!-- Backlog, nice to have -->
+- [ ] Read "How to Use Claude Code for Everyday Tasks—No Programming Required" (2,931 words)
 
 ## Done
 <!-- Completed items, move here with date -->
