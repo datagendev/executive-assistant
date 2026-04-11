@@ -1,11 +1,11 @@
 ---
 name: ea-extract-commenters
-description: Extract commenters from a LinkedIn post and pull their LinkedIn profiles. Use when user says "get commenters", "who commented on this post", "extract commenters", or pastes a LinkedIn post URL and wants commenter data.
+description: Extract commenters from a LinkedIn post and get their LinkedIn URLs. Use when user says "get commenters", "who commented on this post", "extract commenters", or pastes a LinkedIn post URL and wants commenter data.
 ---
 
 # Extract LinkedIn Post Commenters
 
-Fetch all comments on a LinkedIn post, then pull each commenter's full LinkedIn profile. Saves a structured report with profiles and a summary table to `raw/`.
+Fetch all comments on a LinkedIn post and extract each commenter's name, headline, and LinkedIn URL. Saves a structured report to `raw/`.
 
 ## Workflow
 
@@ -35,19 +35,20 @@ This script:
 - Extracts the activity ID from the URL
 - Fetches the post via `get_linkedin_person_post` (falls back to `get_linkedin_company_post`)
 - Fetches all comments via `get_linkedin_post_comments`
-- For each unique commenter with a LinkedIn URL, fetches their full profile via `get_linkedin_person_data`
-- Saves to `raw/{date}/{date}-linkedin-commenters-{slug}.md` with frontmatter and a summary table
+- Extracts each commenter's name, headline, and LinkedIn URL directly from the comment data (no extra API calls)
+- Deduplicates commenters in the summary table
+- Saves to `raw/{date}/{date}-linkedin-commenters-{slug}.md`
 
 ### Step 4: Confirm
 
 The script prints the saved filename and stats. Tell the user:
 - File saved to `raw/<filename>.md`
-- Number of comments found and profiles fetched
-- Suggest: "Want me to add any of these commenters to a prospect list or research someone further?"
+- Number of comments found and unique commenters
+- Suggest: "Want me to research any of these commenters further?"
 
 ## Fallback: If `get_linkedin_post_comments` is unavailable
 
-If the DataGen tool `get_linkedin_post_comments` is not available or fails, fall back to manual extraction:
+If the DataGen tool `get_linkedin_post_comments` is not available or fails:
 
 1. Fetch the post using `get_linkedin_person_post` to confirm it exists and get the comment count
 2. Tell the user the comment count and that automatic comment extraction isn't available
@@ -56,9 +57,9 @@ If the DataGen tool `get_linkedin_post_comments` is not available or fails, fall
 ## Output Format
 
 The saved file includes:
-- **Frontmatter**: post author, activity ID, comment/reaction counts, profiles fetched
-- **Commenter Profiles**: each commenter's name, headline, company, location, summary, and their comment text
-- **Summary Table**: quick-reference table with name, headline, and profile link
+- **Frontmatter**: post author, activity ID, comment/reaction counts, unique commenters count
+- **Commenters list**: each commenter's name (linked to LinkedIn), headline, and comment text
+- **Summary table**: deduplicated table with name, headline, and LinkedIn profile link
 
 ## Tools Used
 
@@ -67,13 +68,10 @@ The saved file includes:
 | Fetch person post | `get_linkedin_person_post` |
 | Fetch company post | `get_linkedin_company_post` |
 | Fetch post comments | `get_linkedin_post_comments` |
-| Fetch person profile | `get_linkedin_person_data` |
 | Resolve iOS share link | `resolve_linkedin_activity_id` (custom tool) |
 
 ## Rules
 
 - Always use the script, not the tools directly (saves tokens and keeps context clean)
 - If the script fails on the comments step, check if the tool name is correct and try the fallback workflow
-- Deduplicate commenters by LinkedIn URL before fetching profiles
 - Keep comment text excerpts to 200 characters in the output
-- If a profile fetch fails for one commenter, continue with the rest

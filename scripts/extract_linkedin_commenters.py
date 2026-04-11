@@ -1,10 +1,9 @@
-"""Fetch a LinkedIn post's comments and pull each commenter's LinkedIn profile."""
+"""Fetch a LinkedIn post's comments and extract each commenter's LinkedIn URL."""
 import os
 import sys
 import re
 import json
 from datetime import datetime
-from concurrent.futures import ThreadPoolExecutor, as_completed
 from datagen_sdk import DatagenClient
 
 
@@ -65,7 +64,6 @@ def fetch_comments(client, activity_id):
         result = client.execute_tool("get_linkedin_post_comments", {
             "activityId": activity_id,
         })
-        # Handle various response shapes
         if isinstance(result, dict):
             comments = result.get("comments", result.get("data", []))
         elif isinstance(result, list):
@@ -76,59 +74,6 @@ def fetch_comments(client, activity_id):
     except Exception as e:
         print(f"Error fetching comments: {e}")
         return []
-
-
-def fetch_commenter_profile(client, linkedin_url):
-    """Fetch a commenter's full LinkedIn profile."""
-    try:
-        result = client.execute_tool("get_linkedin_person_data", {
-            "linkedin_url": linkedin_url,
-        })
-        if isinstance(result, dict):
-            return result.get("person", result.get("data", result))
-        return result
-    except Exception as e:
-        print(f"  Could not fetch profile for {linkedin_url}: {e}")
-        return None
-
-
-def format_profile(profile):
-    """Format a LinkedIn profile into readable markdown."""
-    if not profile:
-        return ""
-
-    name = profile.get("fullName", profile.get("name", "Unknown"))
-    headline = profile.get("headline", "")
-    location = profile.get("location", "")
-    summary = profile.get("summary", "")
-    url = profile.get("linkedInUrl", profile.get("url", profile.get("linkedin_url", "")))
-    company = profile.get("company", profile.get("currentCompany", ""))
-    title = profile.get("title", profile.get("currentTitle", profile.get("position", "")))
-    followers = profile.get("followersCount", profile.get("followers", ""))
-
-    lines = []
-    lines.append(f"### [{name}]({url})")
-    if headline:
-        lines.append(f"**{headline}**")
-    parts = []
-    if title and company:
-        parts.append(f"{title} at {company}")
-    elif title:
-        parts.append(title)
-    elif company:
-        parts.append(company)
-    if location:
-        parts.append(location)
-    if followers:
-        parts.append(f"{followers} followers")
-    if parts:
-        lines.append(" | ".join(parts))
-    if summary:
-        # Truncate long summaries
-        short = summary[:300].rsplit(" ", 1)[0] + ("..." if len(summary) > 300 else "")
-        lines.append(f"\n> {short}")
-
-    return "\n".join(lines)
 
 
 def main():
@@ -168,18 +113,18 @@ def main():
     comments = fetch_comments(client, activity_id)
     print(f"Found {len(comments)} comments")
 
-    # Step 3: Extract unique commenters and fetch their profiles concurrently
+    # Step 3: Extract commenters and their LinkedIn URLs (no profile fetching)
     commenters = []
     seen_urls = set()
-    urls_to_fetch = {}  # url -> index in commenters list
 
     for comment in comments:
         commenter = comment.get("author", comment.get("commenter", {}))
         if isinstance(commenter, str):
             commenters.append({
                 "name": commenter,
+                "headline": "",
+                "url": "",
                 "comment_text": comment.get("text", comment.get("comment", "")),
-                "profile": None,
             })
             continue
 
@@ -188,47 +133,24 @@ def main():
         commenter_headline = commenter.get("authorHeadline", commenter.get("headline", ""))
         comment_text = comment.get("text", comment.get("comment", ""))
 
-        idx = len(commenters)
+        is_new = commenter_url and commenter_url not in seen_urls
+        if commenter_url:
+            seen_urls.add(commenter_url)
+
         commenters.append({
             "name": commenter_name,
             "headline": commenter_headline,
             "url": commenter_url,
             "comment_text": comment_text,
-            "profile": None,
+            "is_unique": is_new,
         })
 
-        if commenter_url and commenter_url not in seen_urls:
-            seen_urls.add(commenter_url)
-            urls_to_fetch[commenter_url] = idx
-
-    # Fetch all unique profiles concurrently
-    print(f"Fetching {len(urls_to_fetch)} unique commenter profiles concurrently...")
-    with ThreadPoolExecutor(max_workers=5) as executor:
-        future_to_url = {
-            executor.submit(fetch_commenter_profile, client, url): url
-            for url in urls_to_fetch
-        }
-        profile_cache = {}
-        for future in as_completed(future_to_url):
-            url = future_to_url[future]
-            profile = future.result()
-            profile_cache[url] = profile
-            name = commenters[urls_to_fetch[url]]["name"]
-            status = "OK" if profile else "failed"
-            print(f"  {name}: {status}")
-
-    # Attach profiles back to commenters (including duplicates)
-    for c in commenters:
-        url = c.get("url", "")
-        if url and url in profile_cache:
-            c["profile"] = profile_cache[url]
+    unique_count = sum(1 for c in commenters if c.get("is_unique"))
 
     # Step 4: Build output markdown
     today = datetime.now().strftime("%Y-%m-%d")
     slug = slugify(f"{post_author} commenters")
     filename = f"{today}-linkedin-commenters-{slug}.md"
-
-    unique_profiles = [c for c in commenters if c.get("profile")]
 
     sections = []
     sections.append(f"""---
@@ -240,7 +162,7 @@ type: linkedin-commenters
 post_author: "{post_author}"
 activity_id: "{activity_id}"
 total_comments: {len(comments)}
-unique_profiles_fetched: {len(unique_profiles)}
+unique_commenters: {unique_count}
 post_reactions: {post_reactions}
 post_comments: {post_comments_count}
 tags: []
@@ -250,28 +172,25 @@ tags: []
 
 **Post excerpt:** {post_text[:200]}{"..." if len(post_text) > 200 else ""}
 **Engagement:** {post_reactions} reactions, {post_comments_count} comments
-**Profiles fetched:** {len(unique_profiles)} / {len(comments)} commenters
+**Unique commenters:** {unique_count}
 
 ---
 """)
 
-    # Section: Commenter profiles
-    sections.append("## Commenter Profiles\n")
+    # Section: Commenters list
+    sections.append("## Commenters\n")
 
-    for i, c in enumerate(commenters, 1):
-        profile_md = format_profile(c.get("profile"))
-        if profile_md:
-            sections.append(profile_md)
+    for c in commenters:
+        name = c.get("name", "Unknown")
+        headline = c.get("headline", "")
+        commenter_url = c.get("url", "")
+
+        if commenter_url:
+            sections.append(f"### [{name}]({commenter_url})")
         else:
-            name = c.get("name", "Unknown")
-            headline = c.get("headline", "")
-            commenter_url = c.get("url", "")
-            if commenter_url:
-                sections.append(f"### [{name}]({commenter_url})")
-            else:
-                sections.append(f"### {name}")
-            if headline:
-                sections.append(f"**{headline}**")
+            sections.append(f"### {name}")
+        if headline:
+            sections.append(f"**{headline}**")
 
         comment_text = c.get("comment_text", "")
         if comment_text:
@@ -282,17 +201,18 @@ tags: []
 
     # Summary table
     sections.append("---\n## Summary Table\n")
-    sections.append("| Name | Headline | Profile |")
+    sections.append("| Name | Headline | LinkedIn |")
     sections.append("|---|---|---|")
+    seen_in_table = set()
     for c in commenters:
-        name = c.get("name", "Unknown")
-        headline = c.get("headline", "")
-        if not headline and c.get("profile"):
-            headline = c["profile"].get("headline", "")
         commenter_url = c.get("url", "")
+        if commenter_url in seen_in_table:
+            continue
+        if commenter_url:
+            seen_in_table.add(commenter_url)
+        name = c.get("name", "Unknown")
+        headline = (c.get("headline", "") or "").replace("|", "/")
         link = f"[Profile]({commenter_url})" if commenter_url else "N/A"
-        # Escape pipes in headline
-        headline = headline.replace("|", "/")
         sections.append(f"| {name} | {headline} | {link} |")
 
     content = "\n".join(sections) + "\n"
@@ -307,7 +227,7 @@ tags: []
     print(f"\nSaved: {filepath}")
     print(f"Post by: {post_author}")
     print(f"Comments: {len(comments)}")
-    print(f"Profiles fetched: {len(unique_profiles)}")
+    print(f"Unique commenters: {unique_count}")
 
 
 if __name__ == "__main__":
