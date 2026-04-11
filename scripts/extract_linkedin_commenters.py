@@ -4,6 +4,7 @@ import sys
 import re
 import json
 from datetime import datetime
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from datagen_sdk import DatagenClient
 
 
@@ -167,14 +168,14 @@ def main():
     comments = fetch_comments(client, activity_id)
     print(f"Found {len(comments)} comments")
 
-    # Step 3: Extract unique commenters and fetch their profiles
+    # Step 3: Extract unique commenters and fetch their profiles concurrently
     commenters = []
     seen_urls = set()
+    urls_to_fetch = {}  # url -> index in commenters list
 
     for comment in comments:
         commenter = comment.get("author", comment.get("commenter", {}))
         if isinstance(commenter, str):
-            # Sometimes just a name string
             commenters.append({
                 "name": commenter,
                 "comment_text": comment.get("text", comment.get("comment", "")),
@@ -187,20 +188,40 @@ def main():
         commenter_headline = commenter.get("authorHeadline", commenter.get("headline", ""))
         comment_text = comment.get("text", comment.get("comment", ""))
 
-        # Deduplicate by LinkedIn URL
-        profile = None
-        if commenter_url and commenter_url not in seen_urls:
-            seen_urls.add(commenter_url)
-            print(f"  Fetching profile: {commenter_name} ({commenter_url})")
-            profile = fetch_commenter_profile(client, commenter_url)
-
+        idx = len(commenters)
         commenters.append({
             "name": commenter_name,
             "headline": commenter_headline,
             "url": commenter_url,
             "comment_text": comment_text,
-            "profile": profile,
+            "profile": None,
         })
+
+        if commenter_url and commenter_url not in seen_urls:
+            seen_urls.add(commenter_url)
+            urls_to_fetch[commenter_url] = idx
+
+    # Fetch all unique profiles concurrently
+    print(f"Fetching {len(urls_to_fetch)} unique commenter profiles concurrently...")
+    with ThreadPoolExecutor(max_workers=5) as executor:
+        future_to_url = {
+            executor.submit(fetch_commenter_profile, client, url): url
+            for url in urls_to_fetch
+        }
+        profile_cache = {}
+        for future in as_completed(future_to_url):
+            url = future_to_url[future]
+            profile = future.result()
+            profile_cache[url] = profile
+            name = commenters[urls_to_fetch[url]]["name"]
+            status = "OK" if profile else "failed"
+            print(f"  {name}: {status}")
+
+    # Attach profiles back to commenters (including duplicates)
+    for c in commenters:
+        url = c.get("url", "")
+        if url and url in profile_cache:
+            c["profile"] = profile_cache[url]
 
     # Step 4: Build output markdown
     today = datetime.now().strftime("%Y-%m-%d")
