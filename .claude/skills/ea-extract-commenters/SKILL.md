@@ -7,6 +7,16 @@ description: Extract commenters from a LinkedIn post and get their LinkedIn URLs
 
 Fetch all comments on a LinkedIn post and extract each commenter's name, headline, and LinkedIn URL. Saves a structured report to `raw/`.
 
+## Setup
+
+Before running the script, ensure the DataGen SDK is installed in the virtual environment:
+
+```bash
+python -m venv .venv 2>/dev/null; source .venv/bin/activate && pip install datagen-sdk
+```
+
+This only needs to run once per environment. The SDK provides `DatagenClient` used by the extraction script.
+
 ## Workflow
 
 ### Step 1: Parse the URL
