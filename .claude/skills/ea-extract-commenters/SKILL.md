@@ -54,7 +54,26 @@ This script:
 The script prints the saved filename and stats. Tell the user:
 - File saved to `raw/<filename>.md`
 - Number of comments found and unique commenters
-- Suggest: "Want me to research any of these commenters further?"
+
+### Step 5: Profile enrichment (optional, OFF by default)
+
+Enriching each commenter's full LinkedIn profile takes ~5-10 minutes for large posts (500+ comments) and uses API credits. **Do NOT run this unless the user explicitly asks** for enrichment, full profiles, titles, companies, or similar detail.
+
+If the user requests enrichment:
+
+```bash
+python scripts/enrich_commenters.py tmp/commenter_slugs.json
+```
+
+This script:
+- Reads the commenter slugs JSON from Step 3
+- Fetches each profile via `get_linkedin_person_data` concurrently (rate-limited to 50 rpm)
+- Checkpoints progress to `tmp/commenter_slugs_checkpoint.json` -- safe to interrupt and resume
+- Writes enriched output to `tmp/commenter_slugs_enriched.json`
+
+Tell the user before starting:
+- "Enriching {N} profiles will take ~{N/60:.0f} minutes. Want me to proceed?"
+- If interrupted, re-running picks up where it left off
 
 ## Fallback: If `get_linkedin_post_comments` is unavailable
 
