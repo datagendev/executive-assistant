@@ -56,7 +56,7 @@ def main():
     post = None
     try:
         result = client.execute_tool("get_linkedin_person_post", {
-            "activityId": activity_id,
+            "activity_id": activity_id,
         })
         post = result.get("post") if isinstance(result, dict) else result
     except Exception as e:

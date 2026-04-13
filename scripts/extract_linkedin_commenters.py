@@ -37,7 +37,7 @@ def fetch_post(client, activity_id):
     post = None
     try:
         result = client.execute_tool("get_linkedin_person_post", {
-            "activityId": activity_id,
+            "activity_id": activity_id,
         })
         post = result.get("post") if isinstance(result, dict) else result
     except Exception as e:
@@ -61,8 +61,8 @@ def fetch_post(client, activity_id):
 def fetch_comments(client, activity_id):
     """Fetch comments on the LinkedIn post."""
     try:
-        result = client.execute_tool("get_linkedin_post_comments", {
-            "activityId": activity_id,
+        result = client.execute_tool("get_linkedin_person_post_comments", {
+            "activity_id": activity_id,
         })
         if isinstance(result, dict):
             comments = result.get("comments", result.get("data", []))
