@@ -14,6 +14,7 @@ https://github.com/datagendev/executive-assistant/releases/download/v0.1.0/showc
 - **Todo management** -- triage tasks into Now/Next/Later, track completion in a local `todo.md`
 - **Save links** -- save articles, YouTube transcripts, and LinkedIn posts to `raw/` for later reading
 - **Prospect meeting prep** -- gather Gmail history, Fireflies transcripts, HeyReach messages, and LinkedIn profile/posts into a formatted brief
+- **Extract LinkedIn commenters** -- scrape commenters from any LinkedIn post, save to Google Sheet with shareable URL, optionally enrich profiles concurrently with checkpointing
 
 ## Setup
 
@@ -46,10 +47,11 @@ Use `/datagen:add-mcps` or add them through the UI at [datagen.dev/signalgen/mcp
 |---|---|---|
 | Composio Google Calendar | `executive-assistant`, `ea-book`, `ea-briefing` | Event listing, free slots, event creation, free/busy queries |
 | Composio Gmail | `ea-briefing`, `ea-prep-prospect` | Email fetching, triage, previous exchange lookup |
+| Composio Google Sheets | `ea-extract-commenters` | Create spreadsheets, write commenter data |
 | Firecrawl | `ea-save-link` | Article/webpage scraping and content extraction |
 | Fireflies | `ea-prep-prospect` | Meeting transcript search and retrieval |
 | HeyReach | `ea-prep-prospect` | LinkedIn conversation history |
-| LinkedIn (built-in) | `ea-briefing`, `ea-prep-prospect` | Profile data, posts, person search |
+| LinkedIn (built-in) | `ea-briefing`, `ea-prep-prospect`, `ea-extract-commenters` | Profile data, posts, comments, person search |
 
 ```
 /datagen:add-mcps
@@ -67,12 +69,13 @@ cd executive-assistant
 ### 6. Try it out
 
 ```
-/ea-briefing        # Morning briefing
-/executive-assistant # Check availability
-/ea-book            # Book a meeting
-/ea-todo            # Manage your todo list
-/ea-save-link       # Save an article, YouTube video, or LinkedIn post
-/ea-prep-prospect   # Prep for a prospect meeting
+/ea-briefing           # Morning briefing
+/executive-assistant   # Check availability
+/ea-book               # Book a meeting
+/ea-todo               # Manage your todo list
+/ea-save-link          # Save an article, YouTube video, or LinkedIn post
+/ea-prep-prospect      # Prep for a prospect meeting
+/ea-extract-commenters # Extract commenters from a LinkedIn post
 ```
 
 ### 7. Deploy as an email agent (optional)
@@ -96,12 +99,15 @@ This deploys the executive-assistant agent to DataGen and gives you back an emai
     ea-briefing/              # Morning briefing with meeting prep
     ea-save-link/             # Save articles, YouTube, LinkedIn posts to raw/
     ea-prep-prospect/         # Prospect meeting prep with multi-source research
+    ea-extract-commenters/    # LinkedIn post commenter extraction + enrichment
   context/
     ea-preferences.md         # User preferences, blocklists, triage rules
 scripts/
   save_link.py                # Router: detects URL type and dispatches to the right script
   save_youtube.py             # Fetch YouTube transcripts via Supadata API
   save_linkedin_post.py       # Fetch LinkedIn posts via DataGen tools
+  extract_linkedin_commenters.py  # Extract commenters from LinkedIn posts
+  enrich_commenters.py        # Concurrent profile enrichment with checkpointing
 raw/                          # Saved articles, transcripts, and posts
 tmp/                          # Temporary research data for prospect prep briefs
 todo.md                       # Local task tracker (Now/Next/Later/Done)
