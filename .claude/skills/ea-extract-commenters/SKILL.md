@@ -49,11 +49,49 @@ This script:
 - Deduplicates commenters in the summary table
 - Saves to `raw/{date}/{date}-linkedin-commenters-{slug}.md`
 
-### Step 4: Confirm
+### Step 4: Save to Google Sheet and share URL
 
-The script prints the saved filename and stats. Tell the user:
-- File saved to `raw/<filename>.md`
+After extraction, save the commenter data to a Google Sheet so the user gets a shareable link.
+
+Run this locally with Python + DataGen SDK:
+
+```python
+import json
+from datagen_sdk import DatagenClient
+from datetime import datetime
+
+client = DatagenClient()
+
+# Load the commenter data saved by Step 3
+# The script saves a JSON with slug/name/url per commenter at tmp/commenter_slugs.json
+with open("tmp/commenter_slugs.json") as f:
+    data = json.load(f)
+
+# Create the spreadsheet
+title = f"LinkedIn Commenters - {post_author} ({datetime.now().strftime('%Y-%m-%d')})"
+sheet = client.execute_tool("composio_GOOGLESHEETS_CREATE_GOOGLE_SHEET1", {"title": title})
+spreadsheet_id = sheet["spreadsheetId"]
+
+# Build rows: header + data
+headers = ["Name", "LinkedIn URL"]
+rows = [headers] + [[c.get("name", ""), f"https://linkedin.com/in/{c['slug']}"] for c in data]
+
+# Write in chunks of 200 (API limit)
+for i in range(0, len(rows), 200):
+    chunk = rows[i:i+200]
+    client.execute_tool("composio_GOOGLESHEETS_BATCH_UPDATE", {
+        "spreadsheet_id": spreadsheet_id,
+        "sheet_name": "Sheet1",
+        "values": chunk,
+        "first_cell_location": f"A{i+1}",
+    })
+
+sheet_url = f"https://docs.google.com/spreadsheets/d/{spreadsheet_id}"
+```
+
+Tell the user:
 - Number of comments found and unique commenters
+- Google Sheet URL with the data
 
 ### Step 5: Profile enrichment (optional, OFF by default)
 
@@ -74,6 +112,27 @@ This script:
 Tell the user before starting:
 - "Enriching {N} profiles will take ~{N/60:.0f} minutes. Want me to proceed?"
 - If interrupted, re-running picks up where it left off
+
+After enrichment completes, update the Google Sheet with enriched columns (Title, Company, Headline, Location):
+
+```python
+with open("tmp/commenter_slugs_enriched.json") as f:
+    enriched = json.load(f)
+
+headers = ["Name", "Title", "Company", "Headline", "Location", "LinkedIn URL"]
+rows = [headers] + [
+    [e.get("name",""), e.get("title",""), e.get("company",""), e.get("headline",""), e.get("location",""), e.get("linkedin_url","")]
+    for e in enriched
+]
+
+for i in range(0, len(rows), 200):
+    client.execute_tool("composio_GOOGLESHEETS_BATCH_UPDATE", {
+        "spreadsheet_id": spreadsheet_id,
+        "sheet_name": "Sheet1",
+        "values": rows[i:i+200],
+        "first_cell_location": f"A{i+1}",
+    })
+```
 
 ## Fallback: If `get_linkedin_post_comments` is unavailable
 
@@ -98,6 +157,9 @@ The saved file includes:
 | Fetch company post | `get_linkedin_company_post` |
 | Fetch post comments | `get_linkedin_post_comments` |
 | Resolve iOS share link | `resolve_linkedin_activity_id` (custom tool) |
+| Create Google Sheet | `composio_GOOGLESHEETS_CREATE_GOOGLE_SHEET1` |
+| Write rows to sheet | `composio_GOOGLESHEETS_BATCH_UPDATE` |
+| Enrich profiles | `get_linkedin_person_data` (via enrich script) |
 
 ## Rules
 
