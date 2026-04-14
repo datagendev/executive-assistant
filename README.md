@@ -6,6 +6,8 @@ Built with [DataGen](https://datagen.dev) for tool orchestration via Composio in
 
 ![Demo](demo.gif)
 
+[See how it works](https://github.com/datagendev/executive-assistant/releases/download/v0.1.0/showcase.mp4)
+
 ## What it does
 
 - **Morning briefing** -- today's schedule, todos, email highlights, and deep meeting prep with LinkedIn background research on attendees
