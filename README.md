@@ -4,7 +4,7 @@ A personal executive assistant built as a Claude Code agent with modular skills.
 
 Built with [DataGen](https://datagen.dev) for tool orchestration via Composio integrations (Google Calendar, Gmail, LinkedIn, Fireflies, HeyReach).
 
-https://github.com/datagendev/executive-assistant/releases/download/v0.1.0/showcase.mp4
+![Demo](demo.gif)
 
 ## What it does
 
